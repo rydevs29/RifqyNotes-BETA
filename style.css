@@ -1,16 +1,24 @@
-/* Styling Scrollbar */
-::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: #16181d; }
-::-webkit-scrollbar-thumb { background: #374151; border-radius: 3px; }
-
-/* Background Halus */
-.bg-radial-gradient {
-    background: radial-gradient(circle at center, #1b1e29 0%, #0f1115 100%);
+/* Tweaks untuk tampilan HP */
+html, body {
+    overscroll-behavior: none; /* Mencegah pull-to-refresh di HP */
 }
 
-/* Audio Player Customization */
+/* Custom Scrollbar */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #374151; border-radius: 4px; }
+
+/* Audio Player Custom */
 audio {
     filter: invert(100%) hue-rotate(180deg);
-    border-radius: 8px;
     height: 40px;
+}
+
+/* Animasi Teks Baru */
+.new-text {
+    animation: fadeIn 0.5s ease-out;
+}
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
 }
