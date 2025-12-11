@@ -2,8 +2,8 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RifqyNotes | Voice Recorder</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>RifqyNotes | Live Transcribe</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script>
@@ -13,7 +13,7 @@
                     colors: {
                         dark: '#0f1115',
                         panel: '#16181d',
-                        accent: '#3b82f6' // Blue
+                        accent: '#3b82f6'
                     }
                 }
             }
@@ -23,43 +23,69 @@
 </head>
 <body class="bg-dark text-gray-200 font-sans h-screen flex overflow-hidden">
 
-    <aside class="w-80 bg-panel border-r border-gray-800 flex flex-col z-20">
-        <div class="h-16 flex items-center px-6 border-b border-gray-800">
-            <i data-lucide="mic" class="text-accent mr-2"></i>
-            <span class="font-bold text-lg tracking-tight text-white">RifqyNotes</span>
+    <div class="md:hidden fixed top-0 w-full h-16 bg-panel/90 backdrop-blur border-b border-gray-800 flex items-center justify-between px-4 z-50">
+        <span class="font-bold text-lg text-white flex items-center gap-2">
+            <i data-lucide="mic" class="text-accent"></i> RifqyNotes
+        </span>
+        <button onclick="toggleSidebar()" class="p-2 text-gray-300 hover:text-white">
+            <i data-lucide="menu"></i>
+        </button>
+    </div>
+
+    <aside id="sidebar" class="fixed inset-y-0 left-0 w-full md:w-80 bg-panel border-r border-gray-800 flex flex-col z-40 transform -translate-x-full md:translate-x-0 transition-transform duration-300">
+        <div class="h-16 flex items-center justify-between px-6 border-b border-gray-800">
+            <div class="flex items-center">
+                <i data-lucide="mic" class="text-accent mr-2"></i>
+                <span class="font-bold text-lg tracking-tight text-white">Riwayat</span>
+            </div>
+            <button onclick="toggleSidebar()" class="md:hidden p-2 text-gray-400">
+                <i data-lucide="x"></i>
+            </button>
         </div>
 
         <div class="flex-1 overflow-y-auto px-2 py-3">
-            <h3 class="text-xs font-bold text-gray-500 uppercase px-4 mb-2">Riwayat Rekaman</h3>
-            <div id="historyList" class="space-y-2">
-                <p class="text-xs text-gray-600 px-4 text-center mt-4">Belum ada rekaman.</p>
-            </div>
+            <div id="historyList" class="space-y-2 pb-20">
+                </div>
         </div>
         
-        <div class="p-4 border-t border-gray-800">
-            <button onclick="clearAllData()" class="w-full py-2 text-xs text-red-400 hover:bg-red-500/10 rounded-lg transition flex items-center justify-center gap-2">
-                <i data-lucide="trash-2" size="14"></i> Hapus Semua Data
+        <div class="p-4 border-t border-gray-800 bg-panel">
+            <button onclick="clearAllData()" class="w-full py-3 text-sm text-red-400 bg-red-500/10 hover:bg-red-500/20 rounded-xl transition flex items-center justify-center gap-2 font-medium">
+                <i data-lucide="trash-2" size="16"></i> Hapus Semua
             </button>
         </div>
     </aside>
 
-    <main class="flex-1 flex flex-col relative items-center justify-center bg-radial-gradient">
+    <main class="flex-1 flex flex-col relative w-full md:ml-80 h-full pt-16 md:pt-0">
         
-        <div class="absolute top-8 text-center">
-            <h1 id="statusTitle" class="text-2xl font-bold text-white tracking-wide">Siap Merekam</h1>
-            <p id="timer" class="text-4xl font-mono mt-2 text-accent font-bold">00:00</p>
+        <div class="flex-none bg-gradient-to-b from-panel to-dark p-6 flex flex-col items-center justify-center min-h-[30vh]">
+            <h1 id="statusTitle" class="text-sm font-medium text-gray-400 uppercase tracking-widest mb-2">Siap Merekam</h1>
+            <p id="timer" class="text-5xl font-mono text-white font-bold tracking-tighter mb-6">00:00</p>
+            
+            <div class="w-full max-w-2xl h-24 bg-gray-900/50 rounded-2xl overflow-hidden border border-gray-800 relative">
+                <canvas id="visualizerCanvas" class="w-full h-full"></canvas>
+            </div>
         </div>
 
-        <div class="w-full h-64 flex items-center justify-center px-10">
-            <canvas id="visualizerCanvas" width="800" height="200" class="w-full h-full"></canvas>
+        <div class="flex-1 overflow-y-auto p-6 md:p-10 scroll-smooth relative" id="transcriptContainer">
+            <div class="max-w-3xl mx-auto">
+                <p class="text-xs text-gray-500 mb-4 font-bold uppercase">Live Transkripsi (Bahasa Indonesia)</p>
+                
+                <div id="liveText" class="text-lg md:text-2xl text-gray-300 leading-relaxed font-light whitespace-pre-wrap">
+                    <span class="italic text-gray-600">Tekan tombol mikrofon untuk mulai berbicara... Teks akan muncul di sini secara otomatis.</span>
+                </div>
+                
+                <div class="h-32"></div>
+            </div>
         </div>
 
-        <div class="absolute bottom-12 flex items-center gap-6">
-            <audio id="audioPlayer" controls class="hidden bg-gray-800 rounded-lg"></audio>
+        <div class="absolute bottom-0 w-full p-6 bg-gradient-to-t from-dark via-dark to-transparent z-10">
+            <div class="flex flex-col items-center gap-4">
+                <audio id="audioPlayer" controls class="hidden w-full max-w-md bg-gray-800 rounded-lg shadow-xl"></audio>
 
-            <button id="recordBtn" class="w-20 h-20 rounded-full bg-accent hover:bg-blue-500 flex items-center justify-center shadow-lg shadow-blue-500/30 transition-all hover:scale-105 active:scale-95">
-                <i data-lucide="mic" class="text-white w-8 h-8" id="micIcon"></i>
-            </button>
+                <button id="recordBtn" class="w-20 h-20 md:w-24 md:h-24 rounded-full bg-accent hover:bg-blue-500 flex items-center justify-center shadow-2xl shadow-blue-500/40 transition-all hover:scale-105 active:scale-95 border-4 border-dark ring-4 ring-gray-800">
+                    <i data-lucide="mic" class="text-white w-8 h-8 md:w-10 md:h-10" id="micIcon"></i>
+                </button>
+            </div>
         </div>
 
     </main>
