@@ -18,21 +18,16 @@
             100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
         }
 
-        /* Styling Select */
         .select-wrapper { position: relative; }
         .select-wrapper select {
-            padding-left: 2.5rem; 
-            padding-right: 2.5rem; 
+            padding-left: 2.5rem; padding-right: 2.5rem; 
             appearance: none; -webkit-appearance: none;
         }
         .icon-left { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); pointer-events: none; }
         .icon-right { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); pointer-events: none; }
 
-        /* Toggle Switch Checkbox Hack */
         .toggle-checkbox:checked { right: 0; border-color: #3b82f6; }
         .toggle-checkbox:checked + .toggle-label { background-color: #3b82f6; }
-        
-        /* Hide scrollbar for cleaner look */
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none;  scrollbar-width: none; }
     </style>
@@ -75,10 +70,6 @@
                                 <option value="ko-KR">한국어 (Korean)</option>
                                 <option value="zh-CN">中文 (Chinese)</option>
                                 <option value="ar-SA">العربية (Arabic)</option>
-                                <option value="es-ES">Español (Spanish)</option>
-                                <option value="fr-FR">Français (French)</option>
-                                <option value="de-DE">Deutsch (German)</option>
-                                <option value="ru-RU">Pусский (Russian)</option>
                             </optgroup>
                         </select>
                         <div class="icon-right text-slate-400 text-xs"><i class="fa-solid fa-chevron-down"></i></div>
@@ -94,7 +85,6 @@
                                 <span class="text-[10px] text-slate-400" id="micStatusText">Aktif</span>
                             </div>
                         </div>
-                        
                         <div class="relative inline-block w-12 mr-2 align-middle select-none transition duration-200 ease-in">
                             <input type="checkbox" name="toggle" id="micToggle" checked class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer transition-all duration-300" style="top: 2px; left: 2px; checked: left: auto; checked: right: 2px;"/>
                             <label for="micToggle" class="toggle-label block overflow-hidden h-7 rounded-full bg-blue-600 cursor-pointer border border-slate-600"></label>
@@ -113,11 +103,13 @@
                     <h3 class="text-xs font-bold text-red-400 animate-pulse">● SEDANG MEREKAM...</h3>
                     <span id="timer" class="text-xs font-mono text-slate-300">00:00</span>
                 </div>
-                <p id="transcriptText" class="text-white text-lg font-medium leading-relaxed">Mendengarkan...</p>
+                <div class="max-h-60 overflow-y-auto pr-2">
+                    <p id="transcriptText" class="text-white text-lg font-medium leading-relaxed whitespace-pre-wrap">Mendengarkan...</p>
+                </div>
             </div>
             
             <div class="mt-6 text-center">
-                 <p class="text-xs text-slate-500">Hasil rekaman otomatis masuk ke menu "Catatan"</p>
+                 <p class="text-xs text-slate-500">Tekan tombol Stop untuk menyimpan semua percakapan ke Catatan.</p>
             </div>
         </section>
 
@@ -125,30 +117,19 @@
             <h2 class="text-xl font-bold mb-4 flex items-center gap-2">
                 <i class="fa-solid fa-book-open text-blue-500"></i> Riwayat Catatan
             </h2>
-            
-            <div id="notesContainer" class="space-y-3 pb-20">
-                <div class="text-center text-slate-500 mt-10">
-                    <i class="fa-solid fa-wind text-4xl mb-2"></i>
-                    <p>Belum ada catatan.</p>
-                </div>
-            </div>
-            
-            <button onclick="clearAllNotes()" class="mt-8 w-full py-2 text-xs text-red-400 border border-red-900 rounded-lg hover:bg-red-900/20">
-                Hapus Semua Riwayat
-            </button>
+            <div id="notesContainer" class="space-y-3 pb-20"></div>
+            <button onclick="clearAllNotes()" class="mt-8 w-full py-2 text-xs text-red-400 border border-red-900 rounded-lg hover:bg-red-900/20">Hapus Semua Riwayat</button>
         </section>
 
         <section id="page-profile" class="hidden p-4">
             <div class="bg-slate-800 rounded-2xl p-6 text-center border border-slate-700 mt-4 relative overflow-hidden">
                 <div class="absolute top-0 left-0 w-full h-20 bg-gradient-to-r from-blue-600 to-purple-600 opacity-80"></div>
-                
                 <div class="relative z-10">
                     <div class="w-24 h-24 mx-auto bg-slate-200 rounded-full border-4 border-slate-800 overflow-hidden mb-3">
                         <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Rifqy" alt="Avatar" class="w-full h-full object-cover">
                     </div>
                     <h2 class="text-xl font-bold text-white">Rifqy User</h2>
                     <p class="text-blue-400 text-sm">Free Plan Member</p>
-                    
                     <div class="grid grid-cols-3 gap-2 mt-6">
                         <div class="bg-slate-900 p-2 rounded-lg border border-slate-700">
                             <div class="text-lg font-bold text-white" id="stat-count">0</div>
@@ -165,33 +146,24 @@
                     </div>
                 </div>
             </div>
-
             <div class="mt-4 space-y-2">
                 <div class="bg-slate-800 p-4 rounded-xl flex justify-between items-center border border-slate-700">
                     <span class="text-sm">Versi Aplikasi</span>
-                    <span class="text-xs text-slate-500">v2.0 (GitHub Pages)</span>
-                </div>
-                 <div class="bg-slate-800 p-4 rounded-xl flex justify-between items-center border border-slate-700 cursor-pointer hover:bg-slate-700">
-                    <span class="text-sm">Pengaturan Akun</span>
-                    <i class="fa-solid fa-chevron-right text-xs text-slate-500"></i>
+                    <span class="text-xs text-slate-500">v3.0 (One Session One Note)</span>
                 </div>
             </div>
         </section>
-
     </main>
 
     <nav class="fixed bottom-0 w-full bg-slate-900/90 backdrop-blur-md border-t border-slate-800 p-2 flex justify-around items-center z-50 h-16">
         <div onclick="switchPage('home')" id="nav-home" class="nav-item active flex flex-col items-center gap-1 cursor-pointer w-16 transition-colors">
-            <i class="fa-solid fa-house text-lg"></i>
-            <span class="text-[10px]">Beranda</span>
+            <i class="fa-solid fa-house text-lg"></i><span class="text-[10px]">Beranda</span>
         </div>
         <div onclick="switchPage('notes')" id="nav-notes" class="nav-item text-slate-500 flex flex-col items-center gap-1 cursor-pointer w-16 transition-colors">
-            <i class="fa-solid fa-note-sticky text-lg"></i>
-            <span class="text-[10px]">Catatan</span>
+            <i class="fa-solid fa-note-sticky text-lg"></i><span class="text-[10px]">Catatan</span>
         </div>
         <div onclick="switchPage('profile')" id="nav-profile" class="nav-item text-slate-500 flex flex-col items-center gap-1 cursor-pointer w-16 transition-colors">
-            <i class="fa-solid fa-user text-lg"></i>
-            <span class="text-[10px]">Profil</span>
+            <i class="fa-solid fa-user text-lg"></i><span class="text-[10px]">Profil</span>
         </div>
     </nav>
 
@@ -199,10 +171,11 @@
         // --- VARIABLES ---
         let recognition;
         let isRecording = false;
-        let shouldContinue = false; // Flag untuk mencegah stop otomatis
+        let shouldContinue = false; 
         let micEnabled = true;
         let seconds = 0;
         let timerInterval;
+        let sessionTranscript = ""; // Variabel Penampung UTAMA
         
         // Elements
         const btnRecord = document.getElementById('btnRecord');
@@ -216,123 +189,101 @@
         const langSelect = document.getElementById('langSelect');
         const timerDisplay = document.getElementById('timer');
 
-        // --- INIT & LOCAL STORAGE ---
         document.addEventListener('DOMContentLoaded', () => {
             renderNotes();
             updateProfileStats();
             initSpeech();
         });
 
-        // --- PAGE SWITCHING ---
         function switchPage(pageName) {
-            // Hide all pages
             ['home', 'notes', 'profile'].forEach(p => {
                 document.getElementById('page-' + p).classList.add('hidden');
                 document.getElementById('nav-' + p).classList.remove('active', 'text-blue-500');
                 document.getElementById('nav-' + p).classList.add('text-slate-500');
             });
-
-            // Show selected page
             document.getElementById('page-' + pageName).classList.remove('hidden');
             const activeNav = document.getElementById('nav-' + pageName);
             activeNav.classList.add('active', 'text-blue-500');
             activeNav.classList.remove('text-slate-500');
-
-            if(pageName === 'notes') renderNotes(); // Refresh notes when opening tab
+            if(pageName === 'notes') renderNotes(); 
         }
 
-        // --- TOGGLE MIC PERMISSION ---
         micToggle.addEventListener('change', (e) => {
             micEnabled = e.target.checked;
             if(micEnabled) {
-                micStatusText.innerText = "Aktif";
-                micStatusText.className = "text-[10px] text-blue-400";
-                toggleLabel.classList.add('bg-blue-600');
-                toggleLabel.classList.remove('bg-slate-600');
+                micStatusText.innerText = "Aktif"; micStatusText.className = "text-[10px] text-blue-400";
+                toggleLabel.classList.add('bg-blue-600'); toggleLabel.classList.remove('bg-slate-600');
                 btnRecord.classList.remove('opacity-50', 'cursor-not-allowed');
             } else {
-                // Jika sedang merekam, hentikan paksa
                 if(isRecording) stopRecordingLogic();
-                
-                micStatusText.innerText = "Non-Aktif";
-                micStatusText.className = "text-[10px] text-slate-500";
-                toggleLabel.classList.remove('bg-blue-600');
-                toggleLabel.classList.add('bg-slate-600');
+                micStatusText.innerText = "Non-Aktif"; micStatusText.className = "text-[10px] text-slate-500";
+                toggleLabel.classList.remove('bg-blue-600'); toggleLabel.classList.add('bg-slate-600');
                 btnRecord.classList.add('opacity-50', 'cursor-not-allowed');
             }
         });
 
-        // --- SPEECH RECOGNITION LOGIC ---
+        // --- CORE SPEECH LOGIC (REVISED) ---
         function initSpeech() {
             if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
                 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
                 recognition = new SpeechRecognition();
-                recognition.continuous = true; // Kita handle continuous manual juga via onend
+                recognition.continuous = true; 
                 recognition.interimResults = true;
 
                 recognition.onresult = (event) => {
                     let interimString = '';
+                    
                     for (let i = event.resultIndex; i < event.results.length; ++i) {
                         if (event.results[i].isFinal) {
-                            const finalText = event.results[i][0].transcript.trim();
-                            if(finalText.length > 0) {
-                                saveNoteToStorage(finalText, langSelect.value);
-                            }
-                            // Reset transcript view setelah save agar tidak numpuk visual
-                            transcriptText.innerText = "Mendengarkan..."; 
+                            // JANGAN SAVE DULU, Masukkan ke variabel sementara
+                            sessionTranscript += event.results[i][0].transcript + " "; 
                         } else {
                             interimString += event.results[i][0].transcript;
                         }
                     }
-                    if(interimString) transcriptText.innerText = interimString;
+                    
+                    // Update tampilan: Gabungan Text Permanen Sesi Ini + Text Sementara
+                    transcriptText.innerText = sessionTranscript + interimString;
                 };
 
                 recognition.onerror = (event) => {
                     console.error("Speech Error:", event.error);
                     if(event.error === 'not-allowed') {
-                        alert("Akses mikrofon ditolak. Cek pengaturan browser.");
-                        stopRecordingLogic();
+                        alert("Akses mikrofon ditolak."); stopRecordingLogic();
                     }
                 };
 
-                // FITUR PENTING: REKAM TERUS JANGAN BERHENTI
+                // FITUR: RESTART OTOMATIS JIKA MATI SENDIRI
                 recognition.onend = () => {
                     if (shouldContinue && micEnabled) {
-                        // Restart otomatis jika user BELUM klik stop
-                        console.log("Restarting recognition...");
+                        console.log("Auto-restarting microphone...");
                         try { recognition.start(); } catch(e) {}
                     } else {
-                        stopUI();
+                        // Jika benar-benar stop (user klik tombol), baru UI berubah
+                        if(!shouldContinue) stopUI();
                     }
                 };
             } else {
-                alert("Browser ini tidak mendukung Web Speech API. Gunakan Chrome.");
+                alert("Browser tidak mendukung Web Speech API. Gunakan Chrome.");
             }
         }
 
         function handleRecordButton() {
-            if(!micEnabled) {
-                alert("Aktifkan tombol 'Izin Mikrofon' terlebih dahulu.");
-                return;
-            }
-
-            if (!isRecording) {
-                startRecordingLogic();
-            } else {
-                stopRecordingLogic();
-            }
+            if(!micEnabled) return alert("Aktifkan tombol 'Izin Mikrofon' terlebih dahulu.");
+            if (!isRecording) startRecordingLogic();
+            else stopRecordingLogic();
         }
 
         function startRecordingLogic() {
             if(!recognition) initSpeech();
             recognition.lang = langSelect.value;
-            shouldContinue = true; // Set flag agar onend me-restart
+            shouldContinue = true; 
+            sessionTranscript = ""; // Reset penampung teks saat mulai baru
             
             try {
                 recognition.start();
                 startUI();
             } catch(e) {
-                // Kadang error jika sudah start, kita reset
                 recognition.stop();
                 setTimeout(() => recognition.start(), 200);
                 startUI();
@@ -340,8 +291,13 @@
         }
 
         function stopRecordingLogic() {
-            shouldContinue = false; // Matikan flag loop
+            shouldContinue = false; // Matikan loop
             if(recognition) recognition.stop();
+            
+            // SAAT BERHENTI, BARU SIMPAN KE CATATAN
+            if (sessionTranscript.trim().length > 0) {
+                saveNoteToStorage(sessionTranscript, langSelect.value);
+            }
             stopUI();
         }
 
@@ -354,7 +310,6 @@
             transcriptArea.classList.remove('hidden');
             transcriptText.innerText = "Mendengarkan...";
             
-            // Timer
             seconds = 0;
             timerDisplay.innerText = "00:00";
             timerInterval = setInterval(() => {
@@ -373,10 +328,9 @@
             clearInterval(timerInterval);
         }
 
-        // --- DATA MANAGEMENT (LOCAL STORAGE) ---
-        
+        // --- LOCAL STORAGE LOGIC ---
         function getNotes() {
-            const notes = localStorage.getItem('rifqy_notes');
+            const notes = localStorage.getItem('rifqy_notes_v2');
             return notes ? JSON.parse(notes) : [];
         }
 
@@ -384,18 +338,18 @@
             const notes = getNotes();
             const newNote = {
                 id: Date.now(),
-                text: text,
+                text: text.trim(), // Simpan teks full satu sesi
                 lang: lang,
                 date: new Date().toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'short' }),
                 time: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
             };
-            notes.unshift(newNote); // Add to top
-            localStorage.setItem('rifqy_notes', JSON.stringify(notes));
+            notes.unshift(newNote); 
+            localStorage.setItem('rifqy_notes_v2', JSON.stringify(notes));
             
-            // Visual feedback kecil di tombol catatan (opsional)
+            // Notifikasi visual kecil
             const navNotes = document.getElementById('nav-notes');
-            navNotes.classList.add('text-green-400');
-            setTimeout(() => navNotes.classList.remove('text-green-400'), 500);
+            navNotes.classList.add('text-green-400', 'font-bold');
+            setTimeout(() => navNotes.classList.remove('text-green-400', 'font-bold'), 1000);
         }
 
         function renderNotes() {
@@ -403,63 +357,14 @@
             const notes = getNotes();
             
             if (notes.length === 0) {
-                container.innerHTML = `
-                    <div class="text-center text-slate-500 mt-10">
-                        <i class="fa-solid fa-wind text-4xl mb-2"></i>
-                        <p>Belum ada catatan.</p>
-                    </div>`;
+                container.innerHTML = `<div class="text-center text-slate-500 mt-10"><i class="fa-solid fa-wind text-4xl mb-2"></i><p>Belum ada catatan.</p></div>`;
                 return;
             }
 
-            container.innerHTML = ''; // Clear current list
+            container.innerHTML = ''; 
             notes.forEach(note => {
                 const html = `
                     <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 hover:border-blue-500 transition-colors">
                         <div class="flex justify-between items-start mb-2">
                             <span class="text-[10px] bg-slate-700 px-2 py-0.5 rounded text-blue-300 font-mono">${note.lang}</span>
-                            <div class="text-[10px] text-slate-500 flex gap-2">
-                                <span>${note.date}</span>
-                                <span>${note.time}</span>
-                            </div>
-                        </div>
-                        <p class="text-slate-200 text-sm leading-relaxed select-text">${note.text}</p>
-                        <div class="mt-3 flex justify-end gap-3 border-t border-slate-700/50 pt-2">
-                            <button onclick="copyNote('${note.text}')" class="text-slate-400 hover:text-white text-xs"><i class="fa-regular fa-copy"></i> Salin</button>
-                            <button onclick="deleteNote(${note.id})" class="text-red-400 hover:text-red-300 text-xs"><i class="fa-solid fa-trash"></i></button>
-                        </div>
-                    </div>
-                `;
-                container.innerHTML += html;
-            });
-            updateProfileStats();
-        }
-
-        function deleteNote(id) {
-            if(!confirm("Hapus catatan ini?")) return;
-            let notes = getNotes();
-            notes = notes.filter(n => n.id !== id);
-            localStorage.setItem('rifqy_notes', JSON.stringify(notes));
-            renderNotes();
-        }
-
-        function clearAllNotes() {
-            if(confirm("Yakin ingin menghapus SEMUA riwayat catatan?")) {
-                localStorage.removeItem('rifqy_notes');
-                renderNotes();
-            }
-        }
-
-        function copyNote(text) {
-            navigator.clipboard.writeText(text).then(() => {
-                alert("Teks disalin!");
-            });
-        }
-
-        function updateProfileStats() {
-            const notes = getNotes();
-            document.getElementById('stat-count').innerText = notes.length;
-        }
-
-    </script>
-</body>
-</html>
+                            <div class="text-[10p
