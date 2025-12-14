@@ -8,28 +8,29 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: white; -webkit-tap-highlight-color: transparent; }
-        .nav-item.active { color: #3b82f6; }
         
-        /* Animasi Nadi Perekaman */
+        /* Animasi */
         .recording-pulse { animation: pulse-red 1.5s infinite; }
         @keyframes pulse-red {
             0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
             70% { box-shadow: 0 0 0 15px rgba(239, 68, 68, 0); }
             100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
         }
+        .animate-fade-in { animation: fadeIn 0.5s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
+        /* UI Elements */
         .select-wrapper { position: relative; }
-        .select-wrapper select {
-            padding-left: 2.5rem; padding-right: 2.5rem; 
-            appearance: none; -webkit-appearance: none;
-        }
+        .select-wrapper select { padding-left: 2.5rem; padding-right: 2.5rem; appearance: none; -webkit-appearance: none; }
         .icon-left { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); pointer-events: none; }
         .icon-right { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); pointer-events: none; }
-
         .toggle-checkbox:checked { right: 0; border-color: #3b82f6; }
         .toggle-checkbox:checked + .toggle-label { background-color: #3b82f6; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none;  scrollbar-width: none; }
+        
+        /* Drag n Drop Upload */
+        .drop-zone { border: 2px dashed #475569; transition: all 0.3s; }
+        .drop-zone.dragover { border-color: #3b82f6; background-color: rgba(59, 130, 246, 0.1); }
     </style>
 </head>
 <body class="bg-slate-900 h-screen flex flex-col overflow-hidden">
@@ -47,14 +48,17 @@
     <main id="mainContainer" class="flex-1 overflow-y-auto no-scrollbar pb-24 relative">
         
         <section id="page-home" class="p-4 block animate-fade-in">
+            
             <div class="bg-slate-800 rounded-2xl p-1 shadow-xl border border-slate-700">
+                
                 <div class="flex bg-slate-900 rounded-xl p-1 mb-4">
-                    <button class="flex-1 py-2 text-sm font-medium bg-blue-600 rounded-lg text-white shadow">In-person</button>
-                    <button class="flex-1 py-2 text-sm font-medium text-slate-400">Online</button>
-                    <button class="flex-1 py-2 text-sm font-medium text-slate-400">Upload</button>
+                    <button onclick="switchMode('inperson')" id="tab-inperson" class="flex-1 py-2 text-sm font-medium bg-blue-600 rounded-lg text-white shadow transition-all">In-person</button>
+                    <button onclick="switchMode('online')" id="tab-online" class="flex-1 py-2 text-sm font-medium text-slate-400 hover:text-white transition-all">Online</button>
+                    <button onclick="switchMode('upload')" id="tab-upload" class="flex-1 py-2 text-sm font-medium text-slate-400 hover:text-white transition-all">Upload</button>
                 </div>
 
                 <div class="px-3 pb-4">
+                    
                     <div class="select-wrapper mb-4">
                         <div class="icon-left text-blue-400"><i class="fa-solid fa-globe"></i></div>
                         <select id="langSelect" class="w-full bg-slate-700 text-white text-sm rounded-lg p-3 border border-slate-600 focus:outline-none focus:border-blue-500 cursor-pointer">
@@ -65,52 +69,88 @@
                             </optgroup>
                             <optgroup label="Internasional">
                                 <option value="en-US">English (US)</option>
-                                <option value="en-GB">English (UK)</option>
                                 <option value="ja-JP">日本語 (Japanese)</option>
-                                <option value="ko-KR">한국어 (Korean)</option>
-                                <option value="zh-CN">中文 (Chinese)</option>
                                 <option value="ar-SA">العربية (Arabic)</option>
                             </optgroup>
                         </select>
                         <div class="icon-right text-slate-400 text-xs"><i class="fa-solid fa-chevron-down"></i></div>
                     </div>
 
-                    <div class="flex justify-between items-center mb-6 bg-slate-700/50 p-3 rounded-lg">
-                        <div class="flex items-center gap-2">
-                            <div class="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center text-red-500">
-                                <i class="fa-solid fa-circle-dot"></i>
-                            </div>
-                            <div class="flex flex-col">
-                                <span class="text-sm font-bold">Izin Mikrofon</span>
-                                <span class="text-[10px] text-slate-400" id="micStatusText">Aktif</span>
+                    <div id="content-inperson" class="mode-content">
+                        <div class="flex justify-between items-center mb-6 bg-slate-700/50 p-3 rounded-lg">
+                            <div class="flex items-center gap-2">
+                                <div class="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center text-red-500">
+                                    <i class="fa-solid fa-microphone-lines"></i>
+                                </div>
+                                <div class="flex flex-col">
+                                    <span class="text-sm font-bold">Mikrofon Langsung</span>
+                                    <span class="text-[10px] text-slate-400">Rapat Tatap Muka</span>
+                                </div>
                             </div>
                         </div>
-                        <div class="relative inline-block w-12 mr-2 align-middle select-none transition duration-200 ease-in">
-                            <input type="checkbox" name="toggle" id="micToggle" checked class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer transition-all duration-300" style="top: 2px; left: 2px; checked: left: auto; checked: right: 2px;"/>
-                            <label for="micToggle" class="toggle-label block overflow-hidden h-7 rounded-full bg-blue-600 cursor-pointer border border-slate-600"></label>
-                        </div>
+                        <button id="btnRecord" onclick="handleRecordButton()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-5 rounded-xl shadow-lg transition-all flex flex-col justify-center items-center gap-1 active:scale-95">
+                            <i class="fa-solid fa-microphone text-2xl"></i>
+                            <span id="btnText" class="text-sm">Mulai Mencatat</span>
+                        </button>
                     </div>
 
-                    <button id="btnRecord" onclick="handleRecordButton()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-5 rounded-xl shadow-lg transition-all flex flex-col justify-center items-center gap-1 active:scale-95">
-                        <i class="fa-solid fa-microphone text-2xl"></i>
-                        <span id="btnText" class="text-sm">Mulai Mencatat</span>
-                    </button>
+                    <div id="content-online" class="mode-content hidden">
+                        <div class="mb-4">
+                            <label class="text-xs text-slate-400 mb-1 block">Platform Meeting</label>
+                            <div class="flex gap-2 mb-3">
+                                <span class="bg-slate-700 px-3 py-1 rounded-lg text-xs border border-slate-600"><i class="fa-brands fa-google text-green-400"></i> Meet</span>
+                                <span class="bg-slate-700 px-3 py-1 rounded-lg text-xs border border-slate-600"><i class="fa-solid fa-video text-blue-400"></i> Zoom</span>
+                                <span class="bg-slate-700 px-3 py-1 rounded-lg text-xs border border-slate-600"><i class="fa-brands fa-microsoft text-purple-400"></i> Teams</span>
+                            </div>
+                            <label class="text-xs text-slate-400 mb-1 block">Paste Link Meeting Disini:</label>
+                            <input type="url" id="meetingLink" placeholder="https://meet.google.com/..." class="w-full bg-slate-900 border border-slate-600 rounded-lg p-3 text-sm text-white focus:border-blue-500 focus:outline-none mb-2">
+                            <p class="text-[10px] text-yellow-500"><i class="fa-solid fa-triangle-exclamation"></i> Tips: Gunakan speaker keras agar mic bisa menangkap suara peserta lain.</p>
+                        </div>
+                        <button onclick="openLinkAndRecord()" class="w-full bg-green-600 hover:bg-green-500 text-white font-bold py-4 rounded-xl shadow-lg transition-all flex flex-col justify-center items-center gap-1 active:scale-95">
+                            <i class="fa-solid fa-arrow-up-right-from-square text-xl"></i>
+                            <span class="text-sm">Buka Meeting & Rekam</span>
+                        </button>
+                    </div>
+
+                    <div id="content-upload" class="mode-content hidden">
+                        <div class="drop-zone bg-slate-700/30 rounded-xl p-6 text-center mb-4 relative" id="dropArea">
+                            <input type="file" id="fileInput" accept="audio/*,video/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+                            <i class="fa-solid fa-cloud-arrow-up text-3xl text-slate-400 mb-2"></i>
+                            <p class="text-sm font-bold text-slate-300">Tap atau Drag file audio</p>
+                            <p class="text-[10px] text-slate-500">MP3, WAV, M4A (Maks 100MB)</p>
+                        </div>
+                        
+                        <div id="uploadProgress" class="hidden mb-4">
+                            <div class="flex justify-between text-xs mb-1">
+                                <span class="text-blue-400">Mengupload & Memproses AI...</span>
+                                <span id="progressPercent">0%</span>
+                            </div>
+                            <div class="w-full bg-slate-700 rounded-full h-2.5">
+                                <div id="progressBar" class="bg-blue-600 h-2.5 rounded-full" style="width: 0%"></div>
+                            </div>
+                        </div>
+
+                        <button onclick="startUploadSimulation()" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-bold py-4 rounded-xl shadow-lg transition-all flex flex-col justify-center items-center gap-1 active:scale-95">
+                            <i class="fa-solid fa-wand-magic-sparkles text-xl"></i>
+                            <span class="text-sm">Transkrip File (AI)</span>
+                        </button>
+                    </div>
+
                 </div>
             </div>
 
-            <div id="transcriptArea" class="hidden mt-4 bg-slate-800/80 backdrop-blur rounded-xl p-4 border border-blue-500/30">
-                <div class="flex justify-between items-center mb-2">
-                    <h3 class="text-xs font-bold text-red-400 animate-pulse">● SEDANG MEREKAM...</h3>
+            <div id="transcriptArea" class="hidden mt-4 bg-slate-800/90 backdrop-blur rounded-xl p-4 border border-blue-500/50 shadow-[0_0_15px_rgba(59,130,246,0.2)]">
+                <div class="flex justify-between items-center mb-2 border-b border-slate-700 pb-2">
+                    <h3 class="text-xs font-bold text-red-400 animate-pulse flex items-center gap-2">
+                        <span class="w-2 h-2 bg-red-500 rounded-full"></span> REC
+                    </h3>
                     <span id="timer" class="text-xs font-mono text-slate-300">00:00</span>
                 </div>
-                <div class="max-h-60 overflow-y-auto pr-2">
-                    <p id="transcriptText" class="text-white text-lg font-medium leading-relaxed whitespace-pre-wrap">Mendengarkan...</p>
+                <div class="max-h-64 overflow-y-auto pr-2 custom-scroll">
+                    <p id="transcriptText" class="text-white text-base font-medium leading-relaxed whitespace-pre-wrap">Mendengarkan...</p>
                 </div>
             </div>
             
-            <div class="mt-6 text-center">
-                 <p class="text-xs text-slate-500">Tekan tombol Stop untuk menyimpan semua percakapan ke Catatan.</p>
-            </div>
         </section>
 
         <section id="page-notes" class="hidden p-4 min-h-full">
@@ -122,34 +162,28 @@
         </section>
 
         <section id="page-profile" class="hidden p-4">
-            <div class="bg-slate-800 rounded-2xl p-6 text-center border border-slate-700 mt-4 relative overflow-hidden">
+             <div class="bg-slate-800 rounded-2xl p-6 text-center border border-slate-700 mt-4 relative overflow-hidden">
                 <div class="absolute top-0 left-0 w-full h-20 bg-gradient-to-r from-blue-600 to-purple-600 opacity-80"></div>
                 <div class="relative z-10">
                     <div class="w-24 h-24 mx-auto bg-slate-200 rounded-full border-4 border-slate-800 overflow-hidden mb-3">
                         <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Rifqy" alt="Avatar" class="w-full h-full object-cover">
                     </div>
                     <h2 class="text-xl font-bold text-white">Rifqy User</h2>
-                    <p class="text-blue-400 text-sm">Free Plan Member</p>
+                    <p class="text-blue-400 text-sm">RifqyMeeting Pro</p>
                     <div class="grid grid-cols-3 gap-2 mt-6">
                         <div class="bg-slate-900 p-2 rounded-lg border border-slate-700">
                             <div class="text-lg font-bold text-white" id="stat-count">0</div>
                             <div class="text-[10px] text-slate-400">Rapat</div>
                         </div>
                         <div class="bg-slate-900 p-2 rounded-lg border border-slate-700">
-                            <div class="text-lg font-bold text-yellow-400">2.7</div>
+                            <div class="text-lg font-bold text-yellow-400">UNL</div>
                             <div class="text-[10px] text-slate-400">Kredit</div>
                         </div>
                         <div class="bg-slate-900 p-2 rounded-lg border border-slate-700">
-                            <div class="text-lg font-bold text-green-400">Aktif</div>
+                            <div class="text-lg font-bold text-green-400">On</div>
                             <div class="text-[10px] text-slate-400">Status</div>
                         </div>
                     </div>
-                </div>
-            </div>
-            <div class="mt-4 space-y-2">
-                <div class="bg-slate-800 p-4 rounded-xl flex justify-between items-center border border-slate-700">
-                    <span class="text-sm">Versi Aplikasi</span>
-                    <span class="text-xs text-slate-500">v3.0 (One Session One Note)</span>
                 </div>
             </div>
         </section>
@@ -171,19 +205,18 @@
         // --- VARIABLES ---
         let recognition;
         let isRecording = false;
-        let shouldContinue = false; 
-        let micEnabled = true;
+        let shouldContinue = false; // "Anti-Mati" Flag
+        
+        // VARIABEL SAKTI: Penampung teks global agar tidak terpisah-pisah
+        let globalTranscript = ""; 
+        let tempTranscript = ""; // Penampung sementara (interim)
+
         let seconds = 0;
         let timerInterval;
-        let sessionTranscript = ""; // Variabel Penampung UTAMA
-        
+
         // Elements
         const btnRecord = document.getElementById('btnRecord');
-        const btnText = document.querySelector('#btnRecord span');
-        const btnIcon = document.querySelector('#btnRecord i');
-        const micToggle = document.getElementById('micToggle');
-        const micStatusText = document.getElementById('micStatusText');
-        const toggleLabel = document.querySelector('.toggle-label');
+        const btnText = document.getElementById('btnText');
         const transcriptArea = document.getElementById('transcriptArea');
         const transcriptText = document.getElementById('transcriptText');
         const langSelect = document.getElementById('langSelect');
@@ -195,6 +228,7 @@
             initSpeech();
         });
 
+        // --- TAB & PAGE LOGIC ---
         function switchPage(pageName) {
             ['home', 'notes', 'profile'].forEach(p => {
                 document.getElementById('page-' + p).classList.add('hidden');
@@ -205,24 +239,67 @@
             const activeNav = document.getElementById('nav-' + pageName);
             activeNav.classList.add('active', 'text-blue-500');
             activeNav.classList.remove('text-slate-500');
-            if(pageName === 'notes') renderNotes(); 
+            if(pageName === 'notes') renderNotes();
         }
 
-        micToggle.addEventListener('change', (e) => {
-            micEnabled = e.target.checked;
-            if(micEnabled) {
-                micStatusText.innerText = "Aktif"; micStatusText.className = "text-[10px] text-blue-400";
-                toggleLabel.classList.add('bg-blue-600'); toggleLabel.classList.remove('bg-slate-600');
-                btnRecord.classList.remove('opacity-50', 'cursor-not-allowed');
-            } else {
-                if(isRecording) stopRecordingLogic();
-                micStatusText.innerText = "Non-Aktif"; micStatusText.className = "text-[10px] text-slate-500";
-                toggleLabel.classList.remove('bg-blue-600'); toggleLabel.classList.add('bg-slate-600');
-                btnRecord.classList.add('opacity-50', 'cursor-not-allowed');
-            }
-        });
+        function switchMode(mode) {
+            // Style Button Tabs
+            ['inperson', 'online', 'upload'].forEach(m => {
+                const btn = document.getElementById('tab-' + m);
+                const content = document.getElementById('content-' + m);
+                
+                if (m === mode) {
+                    btn.classList.remove('text-slate-400', 'bg-transparent');
+                    btn.classList.add('bg-blue-600', 'text-white', 'shadow');
+                    content.classList.remove('hidden');
+                } else {
+                    btn.classList.add('text-slate-400', 'bg-transparent');
+                    btn.classList.remove('bg-blue-600', 'text-white', 'shadow');
+                    content.classList.add('hidden');
+                }
+            });
+        }
 
-        // --- CORE SPEECH LOGIC (REVISED) ---
+        // --- ONLINE MODE LOGIC ---
+        function openLinkAndRecord() {
+            const link = document.getElementById('meetingLink').value;
+            if(!link) return alert("Tempel link meeting dulu, baru gas!");
+            
+            // Buka link di tab baru
+            window.open(link, '_blank');
+
+            // Langsung mulai rekam (Simulasi mendengarkan speaker)
+            setTimeout(() => {
+               alert("Membuka Meeting... Pastikan kembali ke tab ini agar perekaman berjalan!");
+               startRecordingLogic();
+            }, 1000);
+        }
+
+        // --- UPLOAD MODE LOGIC ---
+        function startUploadSimulation() {
+            const file = document.getElementById('fileInput').files[0];
+            if(!file) return alert("Pilih file audio dulu!");
+
+            const progressDiv = document.getElementById('uploadProgress');
+            const progressBar = document.getElementById('progressBar');
+            const progressPercent = document.getElementById('progressPercent');
+
+            progressDiv.classList.remove('hidden');
+            let width = 0;
+            const interval = setInterval(() => {
+                if (width >= 100) {
+                    clearInterval(interval);
+                    alert("⚠️ INFO TEKNIS: Karena website ini statis (GitHub Pages), transkripsi file audio memerlukan Server Backend. Ini hanya simulasi UI.");
+                    progressDiv.classList.add('hidden');
+                } else {
+                    width++;
+                    progressBar.style.width = width + '%';
+                    progressPercent.innerText = width + '%';
+                }
+            }, 50); // Kecepatan simulasi
+        }
+
+        // --- SPEECH RECOGNITION (THE FIX) ---
         function initSpeech() {
             if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
                 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -231,140 +308,34 @@
                 recognition.interimResults = true;
 
                 recognition.onresult = (event) => {
-                    let interimString = '';
+                    tempTranscript = ""; // Reset interim
                     
                     for (let i = event.resultIndex; i < event.results.length; ++i) {
                         if (event.results[i].isFinal) {
-                            // JANGAN SAVE DULU, Masukkan ke variabel sementara
-                            sessionTranscript += event.results[i][0].transcript + " "; 
+                            // SAAT FINAL: Tambahkan ke GLOBAL, jangan reset global!
+                            globalTranscript += event.results[i][0].transcript + " "; 
                         } else {
-                            interimString += event.results[i][0].transcript;
+                            tempTranscript += event.results[i][0].transcript;
                         }
                     }
                     
-                    // Update tampilan: Gabungan Text Permanen Sesi Ini + Text Sementara
-                    transcriptText.innerText = sessionTranscript + interimString;
+                    // TAMPILKAN GABUNGAN (Global + Sedang diketik)
+                    transcriptText.innerText = globalTranscript + tempTranscript;
+                    
+                    // Auto scroll ke bawah
+                    const area = document.querySelector('#transcriptArea .custom-scroll');
+                    if(area) area.scrollTop = area.scrollHeight;
                 };
 
                 recognition.onerror = (event) => {
                     console.error("Speech Error:", event.error);
-                    if(event.error === 'not-allowed') {
-                        alert("Akses mikrofon ditolak."); stopRecordingLogic();
-                    }
                 };
 
-                // FITUR: RESTART OTOMATIS JIKA MATI SENDIRI
+                // LOGIKA ANTI-MATI
                 recognition.onend = () => {
-                    if (shouldContinue && micEnabled) {
-                        console.log("Auto-restarting microphone...");
+                    if (shouldContinue) {
+                        console.log("Mic mati sendiri, menghidupkan kembali...");
                         try { recognition.start(); } catch(e) {}
                     } else {
-                        // Jika benar-benar stop (user klik tombol), baru UI berubah
-                        if(!shouldContinue) stopUI();
-                    }
-                };
-            } else {
-                alert("Browser tidak mendukung Web Speech API. Gunakan Chrome.");
-            }
-        }
-
-        function handleRecordButton() {
-            if(!micEnabled) return alert("Aktifkan tombol 'Izin Mikrofon' terlebih dahulu.");
-            if (!isRecording) startRecordingLogic();
-            else stopRecordingLogic();
-        }
-
-        function startRecordingLogic() {
-            if(!recognition) initSpeech();
-            recognition.lang = langSelect.value;
-            shouldContinue = true; 
-            sessionTranscript = ""; // Reset penampung teks saat mulai baru
-            
-            try {
-                recognition.start();
-                startUI();
-            } catch(e) {
-                recognition.stop();
-                setTimeout(() => recognition.start(), 200);
-                startUI();
-            }
-        }
-
-        function stopRecordingLogic() {
-            shouldContinue = false; // Matikan loop
-            if(recognition) recognition.stop();
-            
-            // SAAT BERHENTI, BARU SIMPAN KE CATATAN
-            if (sessionTranscript.trim().length > 0) {
-                saveNoteToStorage(sessionTranscript, langSelect.value);
-            }
-            stopUI();
-        }
-
-        function startUI() {
-            isRecording = true;
-            btnRecord.className = "w-full bg-red-600 text-white font-bold py-5 rounded-xl shadow-lg transition-all flex flex-col justify-center items-center gap-1 recording-pulse";
-            btnText.innerText = "Hentikan (" + langSelect.options[langSelect.selectedIndex].text.split(' ')[0] + ")";
-            btnIcon.className = "fa-solid fa-stop text-2xl";
-            
-            transcriptArea.classList.remove('hidden');
-            transcriptText.innerText = "Mendengarkan...";
-            
-            seconds = 0;
-            timerDisplay.innerText = "00:00";
-            timerInterval = setInterval(() => {
-                seconds++;
-                const mins = Math.floor(seconds / 60).toString().padStart(2, '0');
-                const secs = (seconds % 60).toString().padStart(2, '0');
-                timerDisplay.innerText = `${mins}:${secs}`;
-            }, 1000);
-        }
-
-        function stopUI() {
-            isRecording = false;
-            btnRecord.className = "w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-5 rounded-xl shadow-lg transition-all flex flex-col justify-center items-center gap-1 active:scale-95";
-            btnText.innerText = "Mulai Mencatat";
-            btnIcon.className = "fa-solid fa-microphone text-2xl";
-            clearInterval(timerInterval);
-        }
-
-        // --- LOCAL STORAGE LOGIC ---
-        function getNotes() {
-            const notes = localStorage.getItem('rifqy_notes_v2');
-            return notes ? JSON.parse(notes) : [];
-        }
-
-        function saveNoteToStorage(text, lang) {
-            const notes = getNotes();
-            const newNote = {
-                id: Date.now(),
-                text: text.trim(), // Simpan teks full satu sesi
-                lang: lang,
-                date: new Date().toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'short' }),
-                time: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
-            };
-            notes.unshift(newNote); 
-            localStorage.setItem('rifqy_notes_v2', JSON.stringify(notes));
-            
-            // Notifikasi visual kecil
-            const navNotes = document.getElementById('nav-notes');
-            navNotes.classList.add('text-green-400', 'font-bold');
-            setTimeout(() => navNotes.classList.remove('text-green-400', 'font-bold'), 1000);
-        }
-
-        function renderNotes() {
-            const container = document.getElementById('notesContainer');
-            const notes = getNotes();
-            
-            if (notes.length === 0) {
-                container.innerHTML = `<div class="text-center text-slate-500 mt-10"><i class="fa-solid fa-wind text-4xl mb-2"></i><p>Belum ada catatan.</p></div>`;
-                return;
-            }
-
-            container.innerHTML = ''; 
-            notes.forEach(note => {
-                const html = `
-                    <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 hover:border-blue-500 transition-colors">
-                        <div class="flex justify-between items-start mb-2">
-                            <span class="text-[10px] bg-slate-700 px-2 py-0.5 rounded text-blue-300 font-mono">${note.lang}</span>
-                            <div class="text-[10p
+                        stopUI();
+         
